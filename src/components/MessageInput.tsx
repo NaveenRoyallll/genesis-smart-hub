@@ -1,8 +1,7 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Mic, MicOff, Send, Image, Loader2, Video, Clock } from 'lucide-react';
+import { Mic, MicOff, Send, Image, Loader2, Video, Clock, ScreenShare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from './ui/use-toast';
 import { Switch } from './ui/switch';
@@ -15,6 +14,7 @@ interface MessageInputProps {
   isListening: boolean;
   onToggleVoice: () => void;
   onToggleVideo: () => void;
+  onToggleScreenShare: () => void;
   isLoading: boolean;
   isTemporaryMessagesEnabled: boolean;
 }
@@ -26,6 +26,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   isListening,
   onToggleVoice,
   onToggleVideo,
+  onToggleScreenShare,
   isLoading,
   isTemporaryMessagesEnabled
 }) => {
@@ -142,6 +143,25 @@ const MessageInput: React.FC<MessageInputProps> = ({
             </TooltipTrigger>
             <TooltipContent>
               {isVideoEnabled ? "Start video chat" : "Enable video in settings"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onToggleScreenShare}
+                className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
+              >
+                <ScreenShare className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Share your screen
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

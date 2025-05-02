@@ -1,21 +1,26 @@
 
 import React from 'react';
-import { Settings, Sparkles, History, Clock } from 'lucide-react';
+import { Settings, Sparkles, History, Clock, Mic } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   onSettingsClick: () => void;
   onHistoryClick: () => void;
   onTemporaryModeClick: () => void;
   isTemporaryModeActive: boolean;
+  onVoiceChatClick: () => void;
+  isVoiceChatActive: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ 
   onSettingsClick, 
   onHistoryClick, 
   onTemporaryModeClick,
-  isTemporaryModeActive 
+  isTemporaryModeActive,
+  onVoiceChatClick,
+  isVoiceChatActive
 }) => {
   return (
     <header className="flex items-center justify-between p-4 border-b border-border/40">
@@ -29,6 +34,25 @@ const Header: React.FC<HeaderProps> = ({
         <h1 className="text-xl font-semibold text-primary">Vision AI Assistant</h1>
       </div>
       <div className="flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onVoiceChatClick}
+                className={cn("text-muted-foreground hover:text-foreground", 
+                  isVoiceChatActive && "text-secondary bg-secondary/10")}
+              >
+                <Mic className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isVoiceChatActive ? "Voice chat active" : "Start voice chat"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -69,8 +93,5 @@ const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
-// Import cn utility
-import { cn } from '@/lib/utils';
 
 export default Header;

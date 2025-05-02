@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Header from '@/components/Header';
@@ -7,6 +6,8 @@ import MessageInput from '@/components/MessageInput';
 import Settings from '@/components/Settings';
 import ChatHistoryDrawer from '@/components/ChatHistoryDrawer';
 import VideoChat from '@/components/VideoChat';
+import ScreenShare from '@/components/ScreenShare';
+import VoiceChat from '@/components/VoiceChat';
 import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -25,6 +26,7 @@ const getAIResponse = async (message: string, fileUrl?: string): Promise<string>
 - Share images for analysis and description
 - Start a voice conversation using the microphone button
 - Begin a video chat with the video button
+- Share your screen using the screen share feature
 - Use temporary messages that will disappear after a set time
 - Browse your chat history using the history button
 - Customize my settings with the settings button`);
@@ -34,6 +36,8 @@ const getAIResponse = async (message: string, fileUrl?: string): Promise<string>
         resolve(`Why don't scientists trust atoms? Because they make up everything! How can I assist you further today?`);
       } else if (message.toLowerCase().includes('video')) {
         resolve(`You can start a video chat by clicking the video camera icon at the bottom of the chat. This will open our video interface where we can communicate face-to-face.`);
+      } else if (message.toLowerCase().includes('screen')) {
+        resolve(`I see you're interested in screen sharing. You can click the screen share icon in the input area to share your screen. This is useful if you want to show me something on your display or get assistance with something visible on your screen.`);
       } else if (message.toLowerCase().includes('voice')) {
         resolve(`Voice communication is available by clicking the microphone icon. Once activated, you can speak naturally and I'll convert your speech to text and respond accordingly.`);
       } else {
@@ -67,6 +71,8 @@ const Index = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isVideoActive, setIsVideoActive] = useState(false);
+  const [isScreenShareActive, setIsScreenShareActive] = useState(false);
+  const [isVoiceChatActive, setIsVoiceChatActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
@@ -200,6 +206,10 @@ const Index = () => {
     }
   };
 
+  const handleVoiceMessage = (message: string) => {
+    handleSendMessage(message);
+  };
+
   const handleToggleVoice = () => {
     if (!settings.voice.enabled) {
       toast({
@@ -248,6 +258,32 @@ const Index = () => {
     if (!isVideoActive) {
       toast({
         title: "Video chat started",
+      });
+    }
+  };
+  
+  const handleToggleScreenShare = () => {
+    setIsScreenShareActive(prev => !prev);
+    
+    if (!isScreenShareActive) {
+      toast({
+        title: "Screen sharing initiated",
+        description: "Share your screen to get visual assistance",
+      });
+    }
+  };
+  
+  const handleToggleVoiceChat = () => {
+    setIsVoiceChatActive(prev => !prev);
+    
+    if (!isVoiceChatActive) {
+      toast({
+        title: "Voice chat initiated",
+        description: "Start speaking to communicate with the AI",
+      });
+    } else {
+      toast({
+        title: "Voice chat ended",
       });
     }
   };
@@ -318,6 +354,8 @@ const Index = () => {
         onHistoryClick={() => setIsHistoryOpen(true)}
         onTemporaryModeClick={toggleTemporaryMode}
         isTemporaryModeActive={settings.chat.temporaryMessagesEnabled}
+        onVoiceChatClick={handleToggleVoiceChat}
+        isVoiceChatActive={isVoiceChatActive}
       />
       
       <ChatContainer 
@@ -333,6 +371,7 @@ const Index = () => {
         isListening={isListening}
         onToggleVoice={handleToggleVoice}
         onToggleVideo={handleToggleVideo}
+        onToggleScreenShare={handleToggleScreenShare}
         isLoading={isLoading}
         isTemporaryMessagesEnabled={settings.chat.temporaryMessagesEnabled}
       />
@@ -356,6 +395,17 @@ const Index = () => {
       <VideoChat
         isActive={isVideoActive}
         onClose={() => setIsVideoActive(false)}
+      />
+      
+      <ScreenShare
+        isActive={isScreenShareActive}
+        onClose={() => setIsScreenShareActive(false)}
+      />
+      
+      <VoiceChat
+        isActive={isVoiceChatActive}
+        onClose={() => setIsVoiceChatActive(false)}
+        onSendVoiceMessage={handleVoiceMessage}
       />
     </div>
   );
