@@ -4,6 +4,7 @@ import { Message } from '@/types';
 import { cn } from '@/lib/utils';
 import { Card } from './ui/card';
 import { User, Bot, Clock } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ChatMessageProps {
   message: Message;
@@ -71,10 +72,19 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, temporaryMessageTTL 
           <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
           
           {message.temporary && timeLeft !== null && (
-            <div className="flex items-center gap-1 text-secondary">
-              <Clock className="h-3 w-3" />
-              <span>{formatTimeLeft(timeLeft)}</span>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 text-secondary">
+                    <Clock className="h-3 w-3" />
+                    <span>{formatTimeLeft(timeLeft)}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>This message will disappear soon</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </Card>

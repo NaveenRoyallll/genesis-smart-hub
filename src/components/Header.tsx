@@ -1,14 +1,22 @@
 
 import React from 'react';
-import { Settings, Sparkles, History } from 'lucide-react';
+import { Settings, Sparkles, History, Clock } from 'lucide-react';
 import { Button } from './ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface HeaderProps {
   onSettingsClick: () => void;
   onHistoryClick: () => void;
+  onTemporaryModeClick: () => void;
+  isTemporaryModeActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSettingsClick, onHistoryClick }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onSettingsClick, 
+  onHistoryClick, 
+  onTemporaryModeClick,
+  isTemporaryModeActive 
+}) => {
   return (
     <header className="flex items-center justify-between p-4 border-b border-border/40">
       <div className="flex items-center gap-2">
@@ -21,6 +29,25 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick, onHistoryClick }) => {
         <h1 className="text-xl font-semibold text-primary">Vision AI Assistant</h1>
       </div>
       <div className="flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onTemporaryModeClick}
+                className={cn("text-muted-foreground hover:text-foreground", 
+                  isTemporaryModeActive && "text-secondary bg-secondary/10")}
+              >
+                <Clock className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isTemporaryModeActive ? "Temporary messages enabled" : "Enable temporary messages"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <Button 
           variant="ghost" 
           size="icon"
@@ -29,6 +56,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick, onHistoryClick }) => {
         >
           <History className="w-5 h-5" />
         </Button>
+
         <Button 
           variant="ghost" 
           size="icon"
@@ -41,5 +69,8 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick, onHistoryClick }) => {
     </header>
   );
 };
+
+// Import cn utility
+import { cn } from '@/lib/utils';
 
 export default Header;

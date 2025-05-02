@@ -162,7 +162,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
               <Switch 
                 checked={isTemporary}
                 onCheckedChange={setIsTemporary}
-                size="sm"
               />
             </div>
           )}

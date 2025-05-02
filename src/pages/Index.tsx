@@ -10,6 +10,46 @@ import VideoChat from '@/components/VideoChat';
 import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 
+// Improved AI response generation with more realistic content
+const getAIResponse = async (message: string, fileUrl?: string): Promise<string> => {
+  // In a real app, this would call an AI API
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (fileUrl) {
+        resolve(`I've analyzed the image you shared. It appears to be a photograph containing visual elements that I can process. Would you like me to describe specific details about it or answer questions related to what's shown in the image?`);
+      } else if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
+        resolve(`Hello! I'm your Vision AI Assistant. How can I help you today? You can ask me questions, share images for analysis, or start a voice or video conversation.`);
+      } else if (message.toLowerCase().includes('help')) {
+        resolve(`I'm here to assist you with various tasks. You can:
+- Ask me questions on any topic
+- Share images for analysis and description
+- Start a voice conversation using the microphone button
+- Begin a video chat with the video button
+- Use temporary messages that will disappear after a set time
+- Browse your chat history using the history button
+- Customize my settings with the settings button`);
+      } else if (message.toLowerCase().includes('weather')) {
+        resolve(`I don't have real-time weather data, but I'd be happy to help you find a weather forecast if you tell me your location. Alternatively, you could use a weather app or website for the most current information.`);
+      } else if (message.toLowerCase().includes('joke')) {
+        resolve(`Why don't scientists trust atoms? Because they make up everything! How can I assist you further today?`);
+      } else if (message.toLowerCase().includes('video')) {
+        resolve(`You can start a video chat by clicking the video camera icon at the bottom of the chat. This will open our video interface where we can communicate face-to-face.`);
+      } else if (message.toLowerCase().includes('voice')) {
+        resolve(`Voice communication is available by clicking the microphone icon. Once activated, you can speak naturally and I'll convert your speech to text and respond accordingly.`);
+      } else {
+        const responses = [
+          "I understand your question about that. Based on my knowledge, I can provide the following insights...",
+          "That's an interesting inquiry. Here's what I can tell you about this topic...",
+          "Thank you for your question. From my analysis, I would suggest considering these points...",
+          "I've processed your request and can offer these observations and recommendations...",
+          "Based on the information you've provided, here's my assessment of the situation..."
+        ];
+        resolve(responses[Math.floor(Math.random() * responses.length)]);
+      }
+    }, 1500);
+  });
+};
+
 // Mock function for handling file uploads
 const uploadFile = async (file: File): Promise<string> => {
   // In a real app, this would upload to a storage service and return a URL
@@ -18,26 +58,6 @@ const uploadFile = async (file: File): Promise<string> => {
       const url = URL.createObjectURL(file);
       resolve(url);
     }, 500);
-  });
-};
-
-// Mock function for AI responses
-const getAIResponse = async (message: string, fileUrl?: string): Promise<string> => {
-  // In a real app, this would call an AI API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (fileUrl) {
-        resolve(`I've analyzed the image you shared. This appears to be [description of image]. How can I help with this?`);
-      } else {
-        const responses = [
-          "I understand you're asking about that. Let me provide some information...",
-          "That's an interesting question. Here's what I know...",
-          "I'd be happy to help with that. Based on my knowledge...",
-          "Great question! The answer is...",
-        ];
-        resolve(responses[Math.floor(Math.random() * responses.length)]);
-      }
-    }, 1500);
   });
 };
 
@@ -75,18 +95,44 @@ const Index = () => {
   useEffect(() => {
     if (settings.chat.temporaryMessagesEnabled) {
       const interval = setInterval(() => {
-        setMessages(prevMessages => prevMessages.filter(msg => !msg.temporary));
-      }, 60000); // Check every minute
+        const now = new Date();
+        setMessages(prevMessages => prevMessages.filter(msg => {
+          if (!msg.temporary) return true;
+          
+          const expirationTime = new Date(msg.timestamp);
+          expirationTime.setMinutes(expirationTime.getMinutes() + settings.chat.temporaryMessageTTL);
+          return now < expirationTime;
+        }));
+      }, 30000); // Check every 30 seconds
       
       return () => clearInterval(interval);
     }
-  }, [settings.chat.temporaryMessagesEnabled]);
+  }, [settings.chat.temporaryMessagesEnabled, settings.chat.temporaryMessageTTL]);
 
   const handleSettingsChange = (newSettings: AISettings) => {
     setSettings(newSettings);
     toast({
       title: "Settings updated",
       description: "Your preferences have been saved",
+    });
+  };
+
+  const toggleTemporaryMode = () => {
+    setSettings(prev => ({
+      ...prev,
+      chat: {
+        ...prev.chat,
+        temporaryMessagesEnabled: !prev.chat.temporaryMessagesEnabled
+      }
+    }));
+    
+    toast({
+      title: settings.chat.temporaryMessagesEnabled ? 
+        "Temporary messages disabled" : 
+        "Temporary messages enabled",
+      description: settings.chat.temporaryMessagesEnabled ? 
+        "Messages will now be permanent" : 
+        `Messages will disappear after ${settings.chat.temporaryMessageTTL} minutes`,
     });
   };
 
@@ -270,6 +316,8 @@ const Index = () => {
       <Header 
         onSettingsClick={() => setIsSettingsOpen(true)} 
         onHistoryClick={() => setIsHistoryOpen(true)}
+        onTemporaryModeClick={toggleTemporaryMode}
+        isTemporaryModeActive={settings.chat.temporaryMessagesEnabled}
       />
       
       <ChatContainer 
