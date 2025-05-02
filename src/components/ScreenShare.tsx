@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { Loader2, ScreenShare, StopCircle } from 'lucide-react';
+import { Loader2, Monitor, StopCircle } from 'lucide-react';
 
 interface ScreenShareProps {
   isActive: boolean;
@@ -82,7 +82,7 @@ const ScreenShare: React.FC<ScreenShareProps> = ({ isActive, onClose }) => {
           />
         ) : (
           <div className="w-64 h-48 bg-muted/30 flex flex-col items-center justify-center gap-3 p-4">
-            <ScreenShare className="h-12 w-12 text-muted-foreground/50" />
+            <Monitor className="h-12 w-12 text-muted-foreground/50" />
             <p className="text-sm text-center text-muted-foreground">
               Share your screen with the AI assistant
             </p>
