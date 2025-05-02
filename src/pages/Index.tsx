@@ -5,7 +5,9 @@ import Header from '@/components/Header';
 import ChatContainer from '@/components/ChatContainer';
 import MessageInput from '@/components/MessageInput';
 import Settings from '@/components/Settings';
-import { Message, AISettings } from '@/types';
+import ChatHistoryDrawer from '@/components/ChatHistoryDrawer';
+import VideoChat from '@/components/VideoChat';
+import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 
 // Mock function for handling file uploads
@@ -43,8 +45,12 @@ const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isVideoActive, setIsVideoActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const { toast } = useToast();
   
   const [settings, setSettings] = useState<AISettings>({
@@ -55,8 +61,26 @@ const Index = () => {
     },
     vision: {
       enabled: true,
+    },
+    video: {
+      enabled: true,
+    },
+    chat: {
+      temporaryMessagesEnabled: false,
+      temporaryMessageTTL: 5, // Default 5 minutes
     }
   });
+
+  // Clean up expired temporary messages
+  useEffect(() => {
+    if (settings.chat.temporaryMessagesEnabled) {
+      const interval = setInterval(() => {
+        setMessages(prevMessages => prevMessages.filter(msg => !msg.temporary));
+      }, 60000); // Check every minute
+      
+      return () => clearInterval(interval);
+    }
+  }, [settings.chat.temporaryMessagesEnabled]);
 
   const handleSettingsChange = (newSettings: AISettings) => {
     setSettings(newSettings);
@@ -66,7 +90,7 @@ const Index = () => {
     });
   };
 
-  const handleSendMessage = async (content: string, file: File | null = null) => {
+  const handleSendMessage = async (content: string, file: File | null = null, temporary: boolean = false) => {
     let fileUrl = undefined;
     
     // Handle file upload if present
@@ -90,6 +114,7 @@ const Index = () => {
       content: content,
       timestamp: new Date(),
       fileUrl,
+      temporary,
     };
     
     setMessages((prev) => [...prev, userMessage]);
@@ -106,9 +131,17 @@ const Index = () => {
         role: 'assistant',
         content: responseContent,
         timestamp: new Date(),
+        temporary,
       };
       
       setMessages((prev) => [...prev, aiMessage]);
+      
+      // Update current chat history or create a new one if none exists
+      if (currentChatId) {
+        updateChatHistory(currentChatId, [userMessage, aiMessage]);
+      } else {
+        createNewChatHistory([userMessage, aiMessage]);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -154,22 +187,106 @@ const Index = () => {
       });
     }
   };
+  
+  const handleToggleVideo = () => {
+    if (!settings.video.enabled) {
+      toast({
+        title: "Video disabled",
+        description: "Enable video chat in settings first",
+      });
+      return;
+    }
+    
+    setIsVideoActive(prev => !prev);
+    
+    if (!isVideoActive) {
+      toast({
+        title: "Video chat started",
+      });
+    }
+  };
+  
+  const createNewChatHistory = (msgs: Message[]) => {
+    const nonTemporaryMsgs = msgs.filter(msg => !msg.temporary);
+    if (nonTemporaryMsgs.length === 0) return;
+    
+    const firstMsg = nonTemporaryMsgs[0];
+    const newChatId = uuidv4();
+    const title = firstMsg.content.length > 30 
+      ? firstMsg.content.substring(0, 30) + "..."
+      : firstMsg.content;
+      
+    const newChat: ChatHistory = {
+      id: newChatId,
+      title,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      messages: nonTemporaryMsgs,
+    };
+    
+    setChatHistories(prev => [newChat, ...prev]);
+    setCurrentChatId(newChatId);
+  };
+  
+  const updateChatHistory = (chatId: string, newMessages: Message[]) => {
+    const nonTemporaryMsgs = newMessages.filter(msg => !msg.temporary);
+    if (nonTemporaryMsgs.length === 0) return;
+    
+    setChatHistories(prev => prev.map(chat => {
+      if (chat.id === chatId) {
+        return {
+          ...chat,
+          updatedAt: new Date(),
+          messages: [...chat.messages, ...nonTemporaryMsgs],
+        };
+      }
+      return chat;
+    }));
+  };
+  
+  const handleSelectHistory = (history: ChatHistory) => {
+    setMessages(history.messages);
+    setCurrentChatId(history.id);
+    setIsHistoryOpen(false);
+  };
+  
+  const handleDeleteHistory = (historyId: string) => {
+    setChatHistories(prev => prev.filter(chat => chat.id !== historyId));
+    
+    if (currentChatId === historyId) {
+      setCurrentChatId(null);
+      setMessages([]);
+    }
+  };
+  
+  const handleNewChat = () => {
+    setMessages([]);
+    setCurrentChatId(null);
+    setIsHistoryOpen(false);
+  };
 
   return (
     <div className="flex flex-col h-screen">
-      <Header onSettingsClick={() => setIsSettingsOpen(true)} />
+      <Header 
+        onSettingsClick={() => setIsSettingsOpen(true)} 
+        onHistoryClick={() => setIsHistoryOpen(true)}
+      />
       
       <ChatContainer 
         messages={messages} 
-        isTyping={isTyping} 
+        isTyping={isTyping}
+        temporaryMessageTTL={settings.chat.temporaryMessageTTL}
       />
       
       <MessageInput 
         onSubmit={handleSendMessage}
         isVoiceEnabled={settings.voice.enabled}
+        isVideoEnabled={settings.video.enabled}
         isListening={isListening}
         onToggleVoice={handleToggleVoice}
+        onToggleVideo={handleToggleVideo}
         isLoading={isLoading}
+        isTemporaryMessagesEnabled={settings.chat.temporaryMessagesEnabled}
       />
       
       <Settings 
@@ -177,6 +294,20 @@ const Index = () => {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onSettingsChange={handleSettingsChange}
+      />
+      
+      <ChatHistoryDrawer
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        histories={chatHistories}
+        onSelectHistory={handleSelectHistory}
+        onDeleteHistory={handleDeleteHistory}
+        onNewChat={handleNewChat}
+      />
+      
+      <VideoChat
+        isActive={isVideoActive}
+        onClose={() => setIsVideoActive(false)}
       />
     </div>
   );

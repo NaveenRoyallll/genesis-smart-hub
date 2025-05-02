@@ -7,9 +7,14 @@ import { Bot } from 'lucide-react';
 interface ChatContainerProps {
   messages: Message[];
   isTyping: boolean;
+  temporaryMessageTTL?: number;
 }
 
-const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isTyping }) => {
+const ChatContainer: React.FC<ChatContainerProps> = ({ 
+  messages, 
+  isTyping, 
+  temporaryMessageTTL = 5 
+}) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -30,15 +35,19 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isTyping }) => 
             </div>
             <div className="absolute w-16 h-16 rounded-full bg-primary/20 pulse-effect"></div>
           </div>
-          <h2 className="text-xl font-medium text-center mb-2">Genesis AI Assistant</h2>
+          <h2 className="text-xl font-medium text-center mb-2">Vision AI Assistant</h2>
           <p className="text-muted-foreground text-center max-w-md">
-            Your AI assistant with text, voice, and vision capabilities. Ask me anything!
+            Your AI assistant with text, voice, vision, and video capabilities. Ask me anything!
           </p>
         </div>
       ) : (
         <>
           {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage 
+              key={message.id} 
+              message={message}
+              temporaryMessageTTL={temporaryMessageTTL}
+            />
           ))}
           
           {isTyping && (

@@ -2,28 +2,37 @@
 import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Mic, MicOff, Send, Image, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Send, Image, Loader2, Video, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from './ui/use-toast';
+import { Switch } from './ui/switch';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface MessageInputProps {
-  onSubmit: (message: string, file?: File | null) => void;
+  onSubmit: (message: string, file?: File | null, temporary?: boolean) => void;
   isVoiceEnabled: boolean;
+  isVideoEnabled: boolean;
   isListening: boolean;
   onToggleVoice: () => void;
+  onToggleVideo: () => void;
   isLoading: boolean;
+  isTemporaryMessagesEnabled: boolean;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
   onSubmit,
   isVoiceEnabled,
+  isVideoEnabled,
   isListening,
   onToggleVoice,
-  isLoading
+  onToggleVideo,
+  isLoading,
+  isTemporaryMessagesEnabled
 }) => {
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [isTemporary, setIsTemporary] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -58,10 +67,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSubmit = () => {
     if (!message.trim() && !selectedFile) return;
-    onSubmit(message, selectedFile);
+    onSubmit(message, selectedFile, isTemporaryMessagesEnabled && isTemporary);
     setMessage('');
     setSelectedFile(null);
     setFilePreview(null);
+    setIsTemporary(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -113,6 +123,29 @@ const MessageInput: React.FC<MessageInputProps> = ({
           />
         </Button>
         
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onToggleVideo}
+                className={cn(
+                  "bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground",
+                  !isVideoEnabled && "opacity-50"
+                )}
+                disabled={!isVideoEnabled}
+              >
+                <Video className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isVideoEnabled ? "Start video chat" : "Enable video in settings"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <div className="relative flex-1">
           <Textarea
             value={message}
@@ -122,6 +155,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
             className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
             disabled={isLoading}
           />
+          
+          {isTemporaryMessagesEnabled && (
+            <div className="absolute top-2 right-24 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Switch 
+                checked={isTemporary}
+                onCheckedChange={setIsTemporary}
+                size="sm"
+              />
+            </div>
+          )}
+          
           <div className="absolute bottom-2 right-2 flex gap-1">
             <Button
               type="button"

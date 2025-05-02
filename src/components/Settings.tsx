@@ -6,6 +6,8 @@ import { Switch } from './ui/switch';
 import { Slider } from './ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { AISettings } from '@/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Input } from './ui/input';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -76,10 +78,43 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
       }
     });
   };
+  
+  const handleVideoToggle = (enabled: boolean) => {
+    setTempSettings({
+      ...tempSettings,
+      video: {
+        ...tempSettings.video,
+        enabled
+      }
+    });
+  };
+  
+  const handleTemporaryMessagesToggle = (enabled: boolean) => {
+    setTempSettings({
+      ...tempSettings,
+      chat: {
+        ...tempSettings.chat,
+        temporaryMessagesEnabled: enabled
+      }
+    });
+  };
+  
+  const handleTemporaryMessageTTLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const ttl = parseInt(e.target.value);
+    if (!isNaN(ttl) && ttl > 0) {
+      setTempSettings({
+        ...tempSettings,
+        chat: {
+          ...tempSettings.chat,
+          temporaryMessageTTL: ttl
+        }
+      });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] bg-card text-card-foreground">
+      <DialogContent className="sm:max-w-[500px] bg-card text-card-foreground">
         <DialogHeader>
           <DialogTitle className="text-primary">Assistant Settings</DialogTitle>
           <DialogDescription>
@@ -87,70 +122,115 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 py-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+        <Tabs defaultValue="communication">
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger value="communication">Communication</TabsTrigger>
+            <TabsTrigger value="chat">Chat Options</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="communication" className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium">Voice Communication</h3>
+                  <p className="text-xs text-muted-foreground">Enable voice input and output</p>
+                </div>
+                <Switch 
+                  checked={tempSettings.voice.enabled}
+                  onCheckedChange={handleVoiceToggle}
+                />
+              </div>
+              
+              {tempSettings.voice.enabled && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="voice-select">Assistant Voice</Label>
+                    <Select 
+                      value={tempSettings.voice.voiceId}
+                      onValueChange={handleVoiceChange}
+                    >
+                      <SelectTrigger id="voice-select" className="bg-muted/50">
+                        <SelectValue placeholder="Select voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {voiceOptions.map(voice => (
+                          <SelectItem key={voice.id} value={voice.id}>
+                            {voice.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="volume-slider">Voice Volume</Label>
+                      <span className="text-xs text-muted-foreground">
+                        {Math.round(tempSettings.voice.volume * 100)}%
+                      </span>
+                    </div>
+                    <Slider 
+                      id="volume-slider"
+                      defaultValue={[tempSettings.voice.volume]}
+                      max={1}
+                      step={0.05}
+                      onValueChange={handleVolumeChange}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="flex items-center justify-between pt-2">
               <div>
-                <h3 className="text-sm font-medium">Voice Communication</h3>
-                <p className="text-xs text-muted-foreground">Enable voice input and output</p>
+                <h3 className="text-sm font-medium">Vision Capabilities</h3>
+                <p className="text-xs text-muted-foreground">Enable image analysis</p>
               </div>
               <Switch 
-                checked={tempSettings.voice.enabled}
-                onCheckedChange={handleVoiceToggle}
+                checked={tempSettings.vision.enabled}
+                onCheckedChange={handleVisionToggle}
               />
             </div>
             
-            {tempSettings.voice.enabled && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="voice-select">Assistant Voice</Label>
-                  <Select 
-                    value={tempSettings.voice.voiceId}
-                    onValueChange={handleVoiceChange}
-                  >
-                    <SelectTrigger id="voice-select" className="bg-muted/50">
-                      <SelectValue placeholder="Select voice" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {voiceOptions.map(voice => (
-                        <SelectItem key={voice.id} value={voice.id}>
-                          {voice.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="volume-slider">Voice Volume</Label>
-                    <span className="text-xs text-muted-foreground">
-                      {Math.round(tempSettings.voice.volume * 100)}%
-                    </span>
-                  </div>
-                  <Slider 
-                    id="volume-slider"
-                    defaultValue={[tempSettings.voice.volume]}
-                    max={1}
-                    step={0.05}
-                    onValueChange={handleVolumeChange}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          
-          <div className="flex items-center justify-between pt-2">
-            <div>
-              <h3 className="text-sm font-medium">Vision Capabilities</h3>
-              <p className="text-xs text-muted-foreground">Enable image analysis</p>
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <h3 className="text-sm font-medium">Video Chat</h3>
+                <p className="text-xs text-muted-foreground">Enable video communication with AI</p>
+              </div>
+              <Switch 
+                checked={tempSettings.video.enabled}
+                onCheckedChange={handleVideoToggle}
+              />
             </div>
-            <Switch 
-              checked={tempSettings.vision.enabled}
-              onCheckedChange={handleVisionToggle}
-            />
-          </div>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="chat" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium">Temporary Messages</h3>
+                <p className="text-xs text-muted-foreground">Messages will disappear after a set time</p>
+              </div>
+              <Switch 
+                checked={tempSettings.chat.temporaryMessagesEnabled}
+                onCheckedChange={handleTemporaryMessagesToggle}
+              />
+            </div>
+            
+            {tempSettings.chat.temporaryMessagesEnabled && (
+              <div className="space-y-2">
+                <Label htmlFor="ttl-input">Messages expire after (minutes)</Label>
+                <Input
+                  id="ttl-input"
+                  type="number"
+                  value={tempSettings.chat.temporaryMessageTTL}
+                  min={1}
+                  onChange={handleTemporaryMessageTTLChange}
+                  className="bg-muted/50"
+                />
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
         
         <div className="flex justify-end gap-3">
           <button
