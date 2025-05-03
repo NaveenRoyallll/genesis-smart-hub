@@ -8,7 +8,7 @@ import {
   Image,
   Video, 
   FileText,
-  FilePdf,
+  File,
   Layers3
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -137,7 +137,7 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
               <span>Generate Video</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onGeneratePDFClick}>
-              <FilePdf className="mr-2 h-4 w-4" />
+              <File className="mr-2 h-4 w-4" />
               <span>Generate PDF</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

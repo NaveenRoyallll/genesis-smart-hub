@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog, 
@@ -9,7 +8,7 @@ import {
 } from './ui/dialog';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Loader2, Image, Video, FilePdf } from 'lucide-react';
+import { Loader2, Image, Video, File } from 'lucide-react';
 import { ContentType, generateContent } from '@/utils/contentGenerator';
 import { useToast } from './ui/use-toast';
 
@@ -62,7 +61,7 @@ const ContentGenerationModal: React.FC<ContentGenerationModalProps> = ({
       case 'video':
         return <Video className="h-5 w-5" />;
       case 'pdf':
-        return <FilePdf className="h-5 w-5" />;
+        return <File className="h-5 w-5" />;
     }
   };
 
@@ -108,7 +107,7 @@ const ContentGenerationModal: React.FC<ContentGenerationModalProps> = ({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <FilePdf className="h-5 w-5" />
+                  <File className="h-5 w-5" />
                   <p className="text-sm truncate">Generated PDF document</p>
                 </div>
               )}
