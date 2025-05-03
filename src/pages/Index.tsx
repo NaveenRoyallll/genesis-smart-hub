@@ -10,6 +10,8 @@ import ScreenShare from '@/components/ScreenShare';
 import VoiceChat from '@/components/VoiceChat';
 import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
+import { performDeepThink } from '@/utils/deepThink';
+import { performDeepSearch } from '@/utils/deepSearch';
 
 // Improved AI response generation with more realistic content
 const getAIResponse = async (message: string, fileUrl?: string): Promise<string> => {
@@ -288,6 +290,144 @@ const Index = () => {
     }
   };
   
+  const handleDeepThink = async (query: string) => {
+    if (!query.trim()) return;
+    
+    // Add user message
+    const userMessage: Message = {
+      id: uuidv4(),
+      role: 'user',
+      content: query,
+      timestamp: new Date(),
+      temporary: false,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    setIsTyping(true);
+    
+    try {
+      // Add thinking indicator
+      const thinkingMessage: Message = {
+        id: uuidv4(),
+        role: 'system',
+        content: '🧠 Thinking deeply about your question...',
+        timestamp: new Date(),
+        temporary: true,
+      };
+      
+      setMessages(prev => [...prev, thinkingMessage]);
+      
+      // Perform deep thinking
+      const response = await performDeepThink(query);
+      
+      // Remove thinking message
+      setMessages(prev => prev.filter(msg => msg.id !== thinkingMessage.id));
+      
+      // Add AI response
+      const aiMessage: Message = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: response,
+        timestamp: new Date(),
+        temporary: false,
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Update chat history
+      if (currentChatId) {
+        updateChatHistory(currentChatId, [userMessage, aiMessage]);
+      } else {
+        createNewChatHistory([userMessage, aiMessage]);
+      }
+    } catch (error) {
+      toast({
+        title: "Deep Think Error",
+        description: "Failed to process your query with deep thinking",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsTyping(false);
+    }
+  };
+  
+  const handleDeepSearch = async (query: string) => {
+    if (!query.trim()) return;
+    
+    // Add user message
+    const userMessage: Message = {
+      id: uuidv4(),
+      role: 'user',
+      content: query,
+      timestamp: new Date(),
+      temporary: false,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    setIsTyping(true);
+    
+    try {
+      // Add searching indicator
+      const searchingMessage: Message = {
+        id: uuidv4(),
+        role: 'system',
+        content: '🔍 Searching the web for relevant information...',
+        timestamp: new Date(),
+        temporary: true,
+      };
+      
+      setMessages(prev => [...prev, searchingMessage]);
+      
+      // Perform deep search
+      const { summary, results } = await performDeepSearch(query);
+      
+      // Remove searching message
+      setMessages(prev => prev.filter(msg => msg.id !== searchingMessage.id));
+      
+      // Format search results
+      let responseContent = summary + "\n\n**Search Results:**\n\n";
+      
+      results.forEach((result, index) => {
+        responseContent += `${index + 1}. [${result.title}](${result.url})\n`;
+        responseContent += `   ${result.snippet}\n`;
+        if (result.publishedDate) {
+          responseContent += `   Published: ${result.publishedDate}\n`;
+        }
+        responseContent += '\n';
+      });
+      
+      // Add AI response
+      const aiMessage: Message = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: responseContent,
+        timestamp: new Date(),
+        temporary: false,
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Update chat history
+      if (currentChatId) {
+        updateChatHistory(currentChatId, [userMessage, aiMessage]);
+      } else {
+        createNewChatHistory([userMessage, aiMessage]);
+      }
+    } catch (error) {
+      toast({
+        title: "Deep Search Error",
+        description: "Failed to search for information",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsTyping(false);
+    }
+  };
+  
   const createNewChatHistory = (msgs: Message[]) => {
     const nonTemporaryMsgs = msgs.filter(msg => !msg.temporary);
     if (nonTemporaryMsgs.length === 0) return;
@@ -372,6 +512,9 @@ const Index = () => {
         onToggleVoice={handleToggleVoice}
         onToggleVideo={handleToggleVideo}
         onToggleScreenShare={handleToggleScreenShare}
+        onToggleVoiceChat={handleToggleVoiceChat}
+        onDeepThink={handleDeepThink}
+        onDeepSearch={handleDeepSearch}
         isLoading={isLoading}
         isTemporaryMessagesEnabled={settings.chat.temporaryMessagesEnabled}
       />

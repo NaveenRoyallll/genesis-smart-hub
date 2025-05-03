@@ -1,7 +1,8 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Mic, MicOff, Send, Image, Loader2, Video, Clock, ScreenShare } from 'lucide-react';
+import { Mic, MicOff, Send, Image, Loader2, Video, Clock, ScreenShare, Brain, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from './ui/use-toast';
 import { Switch } from './ui/switch';
@@ -15,6 +16,9 @@ interface MessageInputProps {
   onToggleVoice: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
+  onToggleVoiceChat: () => void;
+  onDeepThink: (query: string) => void;
+  onDeepSearch: (query: string) => void;
   isLoading: boolean;
   isTemporaryMessagesEnabled: boolean;
 }
@@ -27,6 +31,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
   onToggleVoice,
   onToggleVideo,
   onToggleScreenShare,
+  onToggleVoiceChat,
+  onDeepThink,
+  onDeepSearch,
   isLoading,
   isTemporaryMessagesEnabled
 }) => {
@@ -34,6 +41,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isTemporary, setIsTemporary] = useState(false);
+  const [isDeepMode, setIsDeepMode] = useState<'none' | 'think' | 'search'>('none');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -68,11 +76,28 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSubmit = () => {
     if (!message.trim() && !selectedFile) return;
-    onSubmit(message, selectedFile, isTemporaryMessagesEnabled && isTemporary);
+    
+    if (isDeepMode === 'think') {
+      onDeepThink(message);
+      toast({
+        title: "Deep Think activated",
+        description: "Processing your query with enhanced reasoning...",
+      });
+    } else if (isDeepMode === 'search') {
+      onDeepSearch(message);
+      toast({
+        title: "Deep Search activated",
+        description: "Searching the web for relevant information...",
+      });
+    } else {
+      onSubmit(message, selectedFile, isTemporaryMessagesEnabled && isTemporary);
+    }
+    
     setMessage('');
     setSelectedFile(null);
     setFilePreview(null);
     setIsTemporary(false);
+    setIsDeepMode('none');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -87,6 +112,36 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setFilePreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeepThink = () => {
+    setIsDeepMode(prev => prev === 'think' ? 'none' : 'think');
+    if (isDeepMode !== 'think') {
+      toast({
+        title: "Deep Think mode enabled",
+        description: "Your next message will use advanced reasoning"
+      });
+    } else {
+      toast({
+        title: "Deep Think mode disabled",
+        description: "Returned to standard mode"
+      });
+    }
+  };
+
+  const handleDeepSearch = () => {
+    setIsDeepMode(prev => prev === 'search' ? 'none' : 'search');
+    if (isDeepMode !== 'search') {
+      toast({
+        title: "Deep Search mode enabled",
+        description: "Your next message will search the web"
+      });
+    } else {
+      toast({
+        title: "Deep Search mode disabled",
+        description: "Returned to standard mode"
+      });
     }
   };
 
@@ -123,6 +178,23 @@ const MessageInput: React.FC<MessageInputProps> = ({
             className="hidden"
           />
         </Button>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onToggleVoiceChat}
+                className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
+              >
+                <Mic className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Start voice chat</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <TooltipProvider>
           <Tooltip>
@@ -165,13 +237,61 @@ const MessageInput: React.FC<MessageInputProps> = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant={isDeepMode === 'think' ? "secondary" : "outline"}
+                size="icon"
+                onClick={handleDeepThink}
+                className={cn(
+                  "bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground",
+                  isDeepMode === 'think' && "text-secondary"
+                )}
+              >
+                <Brain className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isDeepMode === 'think' ? "Disable Deep Think" : "Enable Deep Think"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant={isDeepMode === 'search' ? "secondary" : "outline"}
+                size="icon"
+                onClick={handleDeepSearch}
+                className={cn(
+                  "bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground",
+                  isDeepMode === 'search' && "text-secondary"
+                )}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isDeepMode === 'search' ? "Disable Deep Search" : "Enable Deep Search"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <div className="relative flex-1">
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Send a message..."
+            placeholder={isDeepMode === 'think' 
+              ? "Ask a question that needs deep reasoning..." 
+              : isDeepMode === 'search' 
+                ? "Search for information on the web..." 
+                : "Send a message..."}
             className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
             disabled={isLoading}
           />
