@@ -8,10 +8,13 @@ import ChatHistoryDrawer from '@/components/ChatHistoryDrawer';
 import VideoChat from '@/components/VideoChat';
 import ScreenShare from '@/components/ScreenShare';
 import VoiceChat from '@/components/VoiceChat';
+import NoteTaking from '@/components/NoteTaking';
+import ContentGenerationModal from '@/components/ContentGenerationModal';
 import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 import { performDeepThink } from '@/utils/deepThink';
 import { performDeepSearch } from '@/utils/deepSearch';
+import { ContentType } from '@/utils/contentGenerator';
 
 // Improved AI response generation with more realistic content
 const getAIResponse = async (message: string, fileUrl?: string): Promise<string> => {
@@ -75,6 +78,8 @@ const Index = () => {
   const [isVideoActive, setIsVideoActive] = useState(false);
   const [isScreenShareActive, setIsScreenShareActive] = useState(false);
   const [isVoiceChatActive, setIsVoiceChatActive] = useState(false);
+  const [isNoteTakingActive, setIsNoteTakingActive] = useState(false);
+  const [contentGenerationType, setContentGenerationType] = useState<ContentType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
@@ -288,6 +293,30 @@ const Index = () => {
         title: "Voice chat ended",
       });
     }
+  };
+  
+  const handleToggleNoteTaking = () => {
+    setIsNoteTakingActive(prev => !prev);
+    
+    if (!isNoteTakingActive) {
+      toast({
+        title: "Note taking opened",
+        description: "Take notes during your conversation",
+      });
+    } else {
+      toast({
+        title: "Notes saved",
+      });
+    }
+  };
+  
+  const handleGenerateContent = (type: ContentType) => {
+    setContentGenerationType(type);
+    
+    toast({
+      title: `Generate ${type}`,
+      description: `Enter a prompt to generate a ${type}`,
+    });
   };
   
   const handleDeepThink = async (query: string) => {
@@ -515,6 +544,8 @@ const Index = () => {
         onToggleVoiceChat={handleToggleVoiceChat}
         onDeepThink={handleDeepThink}
         onDeepSearch={handleDeepSearch}
+        onNoteTaking={handleToggleNoteTaking}
+        onGenerateContent={handleGenerateContent}
         isLoading={isLoading}
         isTemporaryMessagesEnabled={settings.chat.temporaryMessagesEnabled}
       />
@@ -550,6 +581,19 @@ const Index = () => {
         onClose={() => setIsVoiceChatActive(false)}
         onSendVoiceMessage={handleVoiceMessage}
       />
+      
+      <NoteTaking
+        isActive={isNoteTakingActive}
+        onClose={() => setIsNoteTakingActive(false)}
+      />
+      
+      {contentGenerationType && (
+        <ContentGenerationModal
+          isOpen={!!contentGenerationType}
+          onClose={() => setContentGenerationType(null)}
+          contentType={contentGenerationType}
+        />
+      )}
     </div>
   );
 };
