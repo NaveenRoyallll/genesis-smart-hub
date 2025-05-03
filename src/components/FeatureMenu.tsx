@@ -9,7 +9,8 @@ import {
   Video, 
   FileText,
   File,
-  Layers3
+  Layers3,
+  Link
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ interface FeatureMenuProps {
   onGenerateImageClick: () => void;
   onGenerateVideoClick: () => void;
   onGeneratePDFClick: () => void;
+  onToolIntegrationClick: () => void;
   activeFeature: string | null;
 }
 
@@ -47,6 +49,7 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
   onGenerateImageClick,
   onGenerateVideoClick,
   onGeneratePDFClick,
+  onToolIntegrationClick,
   activeFeature
 }) => {
   const primaryFeatures = [
@@ -79,6 +82,12 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
       icon: FileText, 
       tooltip: 'Note Taking', 
       onClick: onNoteTakingClick 
+    },
+    { 
+      name: 'tool-integration', 
+      icon: Link, 
+      tooltip: 'Tool Integration', 
+      onClick: onToolIntegrationClick 
     },
   ];
 

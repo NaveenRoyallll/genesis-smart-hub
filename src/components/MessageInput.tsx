@@ -23,6 +23,7 @@ interface MessageInputProps {
   onDeepSearch: (query: string) => void;
   onNoteTaking: () => void;
   onGenerateContent: (type: ContentType) => void;
+  onToolIntegration: () => void;
   isLoading: boolean;
   isTemporaryMessagesEnabled: boolean;
 }
@@ -40,6 +41,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   onDeepSearch,
   onNoteTaking,
   onGenerateContent,
+  onToolIntegration,
   isLoading,
   isTemporaryMessagesEnabled
 }) => {
@@ -165,6 +167,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
     onNoteTaking();
     setActiveFeature(activeFeature === 'note-taking' ? null : 'note-taking');
   };
+  
+  const handleToolIntegrationClick = () => {
+    onToolIntegration();
+    setActiveFeature(activeFeature === 'tool-integration' ? null : 'tool-integration');
+  };
 
   return (
     <div className="p-4 border-t border-border/40 bg-background">
@@ -189,6 +196,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           onDeepThinkClick={handleDeepThinkClick}
           onDeepSearchClick={handleDeepSearchClick}
           onNoteTakingClick={handleNoteTakingClick}
+          onToolIntegrationClick={handleToolIntegrationClick}
           onGenerateImageClick={() => onGenerateContent('image')}
           onGenerateVideoClick={() => onGenerateContent('video')}
           onGeneratePDFClick={() => onGenerateContent('pdf')}
@@ -222,7 +230,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 ? "Ask a question that needs deep reasoning..." 
                 : activeFeature === 'deep-search' 
                   ? "Search for information on the web..." 
-                  : "Send a message..."}
+                  : activeFeature === 'tool-integration'
+                    ? "Send a command to the connected tool..."
+                    : "Send a message..."}
               className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
               disabled={isLoading}
             />

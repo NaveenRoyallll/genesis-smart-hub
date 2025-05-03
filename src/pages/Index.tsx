@@ -10,6 +10,7 @@ import ScreenShare from '@/components/ScreenShare';
 import VoiceChat from '@/components/VoiceChat';
 import NoteTaking from '@/components/NoteTaking';
 import ContentGenerationModal from '@/components/ContentGenerationModal';
+import ToolIntegration from '@/components/ToolIntegration';
 import { Message, AISettings, ChatHistory } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 import { performDeepThink } from '@/utils/deepThink';
@@ -79,6 +80,7 @@ const Index = () => {
   const [isScreenShareActive, setIsScreenShareActive] = useState(false);
   const [isVoiceChatActive, setIsVoiceChatActive] = useState(false);
   const [isNoteTakingActive, setIsNoteTakingActive] = useState(false);
+  const [isToolIntegrationActive, setIsToolIntegrationActive] = useState(false);
   const [contentGenerationType, setContentGenerationType] = useState<ContentType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -306,6 +308,17 @@ const Index = () => {
     } else {
       toast({
         title: "Notes saved",
+      });
+    }
+  };
+  
+  const handleToggleToolIntegration = () => {
+    setIsToolIntegrationActive(prev => !prev);
+    
+    if (!isToolIntegrationActive) {
+      toast({
+        title: "Tool Integration",
+        description: "Connect with external tools and services",
       });
     }
   };
@@ -546,6 +559,7 @@ const Index = () => {
         onDeepSearch={handleDeepSearch}
         onNoteTaking={handleToggleNoteTaking}
         onGenerateContent={handleGenerateContent}
+        onToolIntegration={handleToggleToolIntegration}
         isLoading={isLoading}
         isTemporaryMessagesEnabled={settings.chat.temporaryMessagesEnabled}
       />
@@ -594,6 +608,11 @@ const Index = () => {
           contentType={contentGenerationType}
         />
       )}
+      
+      <ToolIntegration
+        isActive={isToolIntegrationActive}
+        onClose={() => setIsToolIntegrationActive(false)}
+      />
     </div>
   );
 };
