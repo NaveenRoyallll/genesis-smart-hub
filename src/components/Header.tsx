@@ -23,13 +23,13 @@ const Header: React.FC<HeaderProps> = ({
   isVoiceChatActive
 }) => {
   return (
-    <header className="flex items-center justify-between p-4 border-b border-border/40">
+    <header className="flex items-center justify-between p-4 border-b border-border/40 bg-muted/10">
       <div className="flex items-center gap-2">
         <div className="relative">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-md">
             <Sparkles className="w-5 h-5 text-primary" />
           </div>
-          <div className="absolute inset-0 w-8 h-8 rounded-full bg-primary/30 pulse-effect"></div>
+          <div className="absolute inset-0 w-10 h-10 rounded-full bg-primary/30 pulse-effect"></div>
         </div>
         <h1 className="text-xl font-semibold text-primary">Vision AI Assistant</h1>
       </div>
@@ -38,13 +38,15 @@ const Header: React.FC<HeaderProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="icon"
                 onClick={onVoiceChatClick}
-                className={cn("text-muted-foreground hover:text-foreground", 
-                  isVoiceChatActive && "text-secondary bg-secondary/10")}
+                className={cn(
+                  "rounded-full w-9 h-9 bg-muted/50 border-border/30 hover:bg-muted/80", 
+                  isVoiceChatActive && "text-secondary bg-secondary/10 border-secondary/30"
+                )}
               >
-                <Mic className="w-5 h-5" />
+                <Mic className="w-4 h-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -57,13 +59,15 @@ const Header: React.FC<HeaderProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="icon"
                 onClick={onTemporaryModeClick}
-                className={cn("text-muted-foreground hover:text-foreground", 
-                  isTemporaryModeActive && "text-secondary bg-secondary/10")}
+                className={cn(
+                  "rounded-full w-9 h-9 bg-muted/50 border-border/30 hover:bg-muted/80", 
+                  isTemporaryModeActive && "text-secondary bg-secondary/10 border-secondary/30"
+                )}
               >
-                <Clock className="w-5 h-5" />
+                <Clock className="w-4 h-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -73,21 +77,21 @@ const Header: React.FC<HeaderProps> = ({
         </TooltipProvider>
         
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="icon"
           onClick={onHistoryClick}
-          className="text-muted-foreground hover:text-foreground"
+          className="rounded-full w-9 h-9 bg-muted/50 border-border/30 hover:bg-muted/80"
         >
-          <History className="w-5 h-5" />
+          <History className="w-4 h-4" />
         </Button>
 
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="icon"
           onClick={onSettingsClick}
-          className="text-muted-foreground hover:text-foreground"
+          className="rounded-full w-9 h-9 bg-muted/50 border-border/30 hover:bg-muted/80"
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-4 h-4" />
         </Button>
       </div>
     </header>
