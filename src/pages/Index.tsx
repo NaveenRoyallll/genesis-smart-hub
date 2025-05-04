@@ -16,10 +16,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { performDeepThink } from '@/utils/deepThink';
 import { performDeepSearch } from '@/utils/deepSearch';
 import { ContentType } from '@/utils/contentGenerator';
-import { callGeminiApi, hasGeminiApiKey } from '@/utils/geminiApi';
 
-// Only used as fallback when Gemini API key is not provided
-const getFallbackResponse = async (message: string, fileUrl?: string): Promise<string> => {
+// Improved AI response generation with more realistic content
+const getAIResponse = async (message: string, fileUrl?: string): Promise<string> => {
   // In a real app, this would call an AI API
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -184,27 +183,8 @@ const Index = () => {
     setIsTyping(true);
     
     try {
-      let responseContent: string;
-      
-      // Check if we have a Gemini API key
-      if (hasGeminiApiKey()) {
-        // Call Gemini API for response
-        try {
-          responseContent = await callGeminiApi(content, fileUrl);
-        } catch (error) {
-          console.error('Error with Gemini API:', error);
-          toast({
-            title: "Gemini API Error",
-            description: error instanceof Error ? error.message : "Failed to get a response from Gemini",
-            variant: "destructive",
-          });
-          // Fall back to mock response if Gemini fails
-          responseContent = await getFallbackResponse(content, fileUrl);
-        }
-      } else {
-        // Use fallback response if no API key
-        responseContent = await getFallbackResponse(content, fileUrl);
-      }
+      // Get AI response
+      const responseContent = await getAIResponse(content, fileUrl);
       
       // Add AI response to chat
       const aiMessage: Message = {

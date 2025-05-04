@@ -181,7 +181,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <Button 
             variant="destructive" 
             size="sm" 
-            className="absolute top-0 right-0 h-6 w-6 p-0 rounded-full" 
+            className="absolute top-0 right-0 h-6 w-6 p-0" 
             onClick={clearImage}
           >
             ✕
@@ -209,7 +209,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             variant="outline"
             size="icon"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-full w-11 h-11 bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground hover:shadow-lg hover:scale-105 transition-all duration-300"
+            className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
           >
             <Image className="h-5 w-5" />
             <input
@@ -233,7 +233,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                   : activeFeature === 'tool-integration'
                     ? "Send a command to the connected tool..."
                     : "Send a message..."}
-              className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30 rounded-2xl"
+              className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
               disabled={isLoading}
             />
             
@@ -247,13 +247,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
               </div>
             )}
             
-            <div className="absolute bottom-2 right-2 flex gap-2">
+            <div className="absolute bottom-2 right-2 flex gap-1">
               <Button
                 type="button"
                 size="icon"
-                variant="outline"
+                variant="ghost"
                 className={cn(
-                  "h-8 w-8 rounded-full bg-muted/70 border border-border/30",
+                  "h-8 w-8 bg-muted/70 border border-border/30",
                   isListening && "animate-pulse bg-secondary/30 border-secondary/40"
                 )}
                 onClick={onToggleVoice}
@@ -264,7 +264,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               
               <Button
                 size="icon"
-                className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:bg-primary/80 shadow-md hover:shadow-lg"
+                className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/80"
                 onClick={handleSubmit}
                 disabled={isLoading || (!message.trim() && !selectedFile)}
               >

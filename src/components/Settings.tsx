@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
@@ -7,10 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { AISettings } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
-import { Eye, EyeOff } from 'lucide-react';
-import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
-import { hasGeminiApiKey } from '@/utils/geminiApi';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -34,34 +31,11 @@ const voiceOptions: VoiceOption[] = [
   { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte (Female)' },
 ];
 
-const LOCAL_STORAGE_KEY = 'gemini_api_key';
-
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
   const [tempSettings, setTempSettings] = useState<AISettings>({ ...settings });
-  const [geminiApiKey, setGeminiApiKey] = useState<string>('');
-  const [isApiKeyVisible, setIsApiKeyVisible] = useState<boolean>(false);
-  const { toast } = useToast();
-
-  // Load Gemini API key from localStorage when component mounts
-  useEffect(() => {
-    const savedApiKey = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedApiKey) {
-      setGeminiApiKey(savedApiKey);
-    }
-  }, []);
 
   const handleSave = () => {
     onSettingsChange(tempSettings);
-    
-    // Save Gemini API key to localStorage if it exists
-    if (geminiApiKey.trim()) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, geminiApiKey);
-      toast({
-        title: "API Key Saved",
-        description: "Your Gemini API key has been saved securely"
-      });
-    }
-    
     onClose();
   };
 
@@ -138,10 +112,6 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
     }
   };
 
-  const toggleApiKeyVisibility = () => {
-    setIsApiKeyVisible(!isApiKeyVisible);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] bg-card text-card-foreground">
@@ -150,18 +120,12 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
           <DialogDescription>
             Configure your AI assistant preferences
           </DialogDescription>
-          {!hasGeminiApiKey() && (
-            <div className="mt-2 p-2 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-md text-sm text-amber-800 dark:text-amber-200">
-              <strong>Important:</strong> Add your Google Gemini API key in the API tab to enable AI functionality.
-            </div>
-          )}
         </DialogHeader>
         
-        <Tabs defaultValue={hasGeminiApiKey() ? "communication" : "api"}>
-          <TabsList className="grid grid-cols-3 mb-4">
+        <Tabs defaultValue="communication">
+          <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="communication">Communication</TabsTrigger>
             <TabsTrigger value="chat">Chat Options</TabsTrigger>
-            <TabsTrigger value="api">API Keys</TabsTrigger>
           </TabsList>
           
           <TabsContent value="communication" className="space-y-6">
@@ -266,46 +230,9 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
               </div>
             )}
           </TabsContent>
-
-          <TabsContent value="api" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="gemini-api-key" className="text-sm font-medium">
-                Google Gemini API Key <span className="text-red-500">*</span>
-              </Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Required for AI functionality. Your API key is stored locally and never sent to our servers.
-              </p>
-              <div className="relative">
-                <Input
-                  id="gemini-api-key"
-                  type={isApiKeyVisible ? "text" : "password"}
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
-                  placeholder="Enter your Gemini API key"
-                  className="pr-10 bg-muted/50"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleApiKeyVisibility}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                >
-                  {isApiKeyVisible ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Don't have an API key? <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Get one from Google AI Studio</a>
-              </p>
-            </div>
-          </TabsContent>
         </Tabs>
         
-        <div className="flex justify-end gap-3 pt-4 border-t border-border/30">
+        <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
