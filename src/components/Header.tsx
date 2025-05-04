@@ -4,6 +4,8 @@ import { Settings, Sparkles, History, Clock, Mic, CreditCard } from 'lucide-reac
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from './ThemeToggle';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   onSettingsClick: () => void;
@@ -34,6 +36,8 @@ const Header: React.FC<HeaderProps> = ({
         <h1 className="text-xl font-semibold text-primary">Vision AI Assistant</h1>
       </div>
       <div className="flex items-center gap-2">
+        <ThemeToggle />
+        
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -80,6 +84,25 @@ const Header: React.FC<HeaderProps> = ({
         >
           <History className="w-5 h-5" />
         </Button>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link to="/billing">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <CreditCard className="w-5 h-5" />
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              Billing & Subscription
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <Button 
           variant="ghost" 
