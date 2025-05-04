@@ -7,10 +7,11 @@ import {
   ScreenShare as Monitor, 
   Image,
   Video, 
-  FileText,
   File,
   Layers3,
-  Link
+  Link,
+  Globe,
+  Settings
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -54,34 +55,28 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
 }) => {
   const primaryFeatures = [
     { 
-      name: 'voice-chat', 
-      icon: Mic, 
-      tooltip: 'Voice Chat', 
-      onClick: onVoiceChatClick 
-    },
-    { 
-      name: 'screen-share', 
-      icon: Monitor, 
-      tooltip: 'Screen Share', 
-      onClick: onScreenShareClick 
-    },
-    { 
-      name: 'deep-think', 
-      icon: Brain, 
-      tooltip: 'Deep Think', 
-      onClick: onDeepThinkClick 
-    },
-    { 
-      name: 'deep-search', 
+      name: 'search', 
       icon: Search, 
-      tooltip: 'Deep Search', 
+      tooltip: 'Search', 
       onClick: onDeepSearchClick 
     },
     { 
-      name: 'note-taking', 
-      icon: FileText, 
-      tooltip: 'Note Taking', 
-      onClick: onNoteTakingClick 
+      name: 'reason', 
+      icon: Brain, 
+      tooltip: 'Reason', 
+      onClick: onDeepThinkClick 
+    },
+    {
+      name: 'deep-search',
+      icon: Globe,
+      tooltip: 'Deep Research',
+      onClick: onDeepSearchClick
+    },
+    {
+      name: 'generate-image',
+      icon: Image,
+      tooltip: 'Create Image',
+      onClick: onGenerateImageClick
     },
     { 
       name: 'tool-integration', 
@@ -92,22 +87,32 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center justify-between w-full gap-2 mb-2">
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full w-9 h-9"
+        >
+          <span className="text-lg">+</span>
+        </Button>
+      </div>
+      
+      <div className="flex items-center gap-1">
         {primaryFeatures.map((feature) => (
           <TooltipProvider key={feature.name}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={activeFeature === feature.name ? "secondary" : "outline"}
+                  variant={activeFeature === feature.name ? "secondary" : "ghost"}
                   size="icon"
                   onClick={feature.onClick}
                   className={cn(
-                    "bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground",
-                    activeFeature === feature.name && "text-secondary bg-secondary/10"
+                    "rounded-full w-9 h-9 bg-muted/20",
+                    activeFeature === feature.name && "bg-secondary/10"
                   )}
                 >
-                  <feature.icon className="h-5 w-5" />
+                  <feature.icon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -116,41 +121,16 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
             </Tooltip>
           </TooltipProvider>
         ))}
-
-        <DropdownMenu>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
-                  >
-                    <Layers3 className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>
-                Generate Content
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onGenerateImageClick}>
-              <Image className="mr-2 h-4 w-4" />
-              <span>Generate Image</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onGenerateVideoClick}>
-              <Video className="mr-2 h-4 w-4" />
-              <span>Generate Video</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onGeneratePDFClick}>
-              <File className="mr-2 h-4 w-4" />
-              <span>Generate PDF</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      </div>
+      
+      <div className="flex-shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full w-9 h-9"
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { AISettings } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -33,9 +34,15 @@ const voiceOptions: VoiceOption[] = [
 
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
   const [tempSettings, setTempSettings] = useState<AISettings>({ ...settings });
+  const [googleApiKey, setGoogleApiKey] = useState<string>('');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleSave = () => {
     onSettingsChange(tempSettings);
+    // Store API key in localStorage
+    if (googleApiKey) {
+      localStorage.setItem('google-ai-api-key', googleApiKey);
+    }
     onClose();
   };
 
@@ -112,6 +119,14 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
     }
   };
 
+  // Load API key from localStorage on component mount
+  React.useEffect(() => {
+    const savedApiKey = localStorage.getItem('google-ai-api-key');
+    if (savedApiKey) {
+      setGoogleApiKey(savedApiKey);
+    }
+  }, []);
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] bg-card text-card-foreground">
@@ -123,9 +138,10 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
         </DialogHeader>
         
         <Tabs defaultValue="communication">
-          <TabsList className="grid grid-cols-2 mb-4">
+          <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="communication">Communication</TabsTrigger>
             <TabsTrigger value="chat">Chat Options</TabsTrigger>
+            <TabsTrigger value="api">API Keys</TabsTrigger>
           </TabsList>
           
           <TabsContent value="communication" className="space-y-6">
@@ -229,6 +245,32 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
                 />
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="api" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="google-ai-key">Google AI Studio API Key</Label>
+              <div className="relative">
+                <Input
+                  id="google-ai-key"
+                  type={showApiKey ? "text" : "password"}
+                  value={googleApiKey}
+                  onChange={(e) => setGoogleApiKey(e.target.value)}
+                  placeholder="Enter your API key"
+                  className="bg-muted/50 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your API key is stored locally and never sent to our servers
+              </p>
+            </div>
           </TabsContent>
         </Tabs>
         
