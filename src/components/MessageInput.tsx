@@ -189,7 +189,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         </div>
       )}
       
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <FeatureMenu
           onVoiceChatClick={handleVoiceChatClick}
           onScreenShareClick={handleScreenShareClick}
@@ -203,16 +203,49 @@ const MessageInput: React.FC<MessageInputProps> = ({
           activeFeature={activeFeature}
         />
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
+          >
+            <Image className="h-5 w-5" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+          </Button>
+
           <div className="relative flex-1">
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything"
-              className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/20 border-border/30 rounded-full py-3"
+              placeholder={activeFeature === 'deep-think' 
+                ? "Ask a question that needs deep reasoning..." 
+                : activeFeature === 'deep-search' 
+                  ? "Search for information on the web..." 
+                  : activeFeature === 'tool-integration'
+                    ? "Send a command to the connected tool..."
+                    : "Send a message..."}
+              className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
               disabled={isLoading}
             />
+            
+            {isTemporaryMessagesEnabled && (
+              <div className="absolute top-2 right-24 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Switch 
+                  checked={isTemporary}
+                  onCheckedChange={setIsTemporary}
+                />
+              </div>
+            )}
             
             <div className="absolute bottom-2 right-2 flex gap-1">
               <Button
@@ -220,22 +253,22 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "h-8 w-8 rounded-full",
-                  isListening && "animate-pulse bg-secondary/30"
+                  "h-8 w-8 bg-muted/70 border border-border/30",
+                  isListening && "animate-pulse bg-secondary/30 border-secondary/40"
                 )}
                 onClick={onToggleVoice}
                 disabled={!isVoiceEnabled}
               >
-                {isListening ? <Mic className="h-5 w-5 text-secondary" /> : <Mic className="h-5 w-5" />}
+                {isListening ? <Mic className="h-4 w-4 text-secondary" /> : <MicOff className="h-4 w-4" />}
               </Button>
               
               <Button
                 size="icon"
-                className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/80 rounded-full"
+                className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/80"
                 onClick={handleSubmit}
                 disabled={isLoading || (!message.trim() && !selectedFile)}
               >
-                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
           </div>
