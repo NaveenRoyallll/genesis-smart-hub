@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Settings, Sparkles, History, Clock, Mic } from 'lucide-react';
+import { Settings, Sparkles, History, Clock, Mic, CreditCard } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -85,9 +85,10 @@ const Header: React.FC<HeaderProps> = ({
           variant="ghost" 
           size="icon"
           onClick={onSettingsClick}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground relative"
         >
           <Settings className="w-5 h-5" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full"></span>
         </Button>
       </div>
     </header>

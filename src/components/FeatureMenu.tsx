@@ -10,7 +10,8 @@ import {
   FileText,
   File,
   Layers3,
-  Link
+  Link,
+  CreditCard
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
@@ -103,8 +104,8 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
                   size="icon"
                   onClick={feature.onClick}
                   className={cn(
-                    "bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground",
-                    activeFeature === feature.name && "text-secondary bg-secondary/10"
+                    "rounded-full bg-gradient-to-br from-muted/70 to-muted/30 border-border/30 text-muted-foreground hover:text-foreground shadow-sm transition-all hover:-translate-y-0.5",
+                    activeFeature === feature.name && "text-primary bg-primary/10 shadow-inner shadow-primary/20 from-primary/20 to-primary/5"
                   )}
                 >
                   <feature.icon className="h-5 w-5" />
@@ -125,7 +126,7 @@ const FeatureMenu: React.FC<FeatureMenuProps> = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
+                    className="rounded-full bg-gradient-to-br from-muted/70 to-muted/30 border-border/30 text-muted-foreground hover:text-foreground shadow-sm transition-all hover:-translate-y-0.5"
                   >
                     <Layers3 className="h-5 w-5" />
                   </Button>
