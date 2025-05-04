@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
@@ -11,6 +10,7 @@ import { Input } from './ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
+import { hasGeminiApiKey } from '@/utils/geminiApi';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -150,9 +150,14 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
           <DialogDescription>
             Configure your AI assistant preferences
           </DialogDescription>
+          {!hasGeminiApiKey() && (
+            <div className="mt-2 p-2 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-md text-sm text-amber-800 dark:text-amber-200">
+              <strong>Important:</strong> Add your Google Gemini API key in the API tab to enable AI functionality.
+            </div>
+          )}
         </DialogHeader>
         
-        <Tabs defaultValue="communication">
+        <Tabs defaultValue={hasGeminiApiKey() ? "communication" : "api"}>
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="communication">Communication</TabsTrigger>
             <TabsTrigger value="chat">Chat Options</TabsTrigger>
@@ -265,10 +270,10 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSettin
           <TabsContent value="api" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="gemini-api-key" className="text-sm font-medium">
-                Google Gemini API Key
+                Google Gemini API Key <span className="text-red-500">*</span>
               </Label>
               <p className="text-xs text-muted-foreground mb-2">
-                Your API key is stored locally and never sent to our servers
+                Required for AI functionality. Your API key is stored locally and never sent to our servers.
               </p>
               <div className="relative">
                 <Input
