@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
@@ -9,7 +8,6 @@ import { Switch } from './ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import FeatureMenu from './FeatureMenu';
 import { ContentType } from '@/utils/contentGenerator';
-
 interface MessageInputProps {
   onSubmit: (message: string, file?: File | null, temporary?: boolean) => void;
   isVoiceEnabled: boolean;
@@ -27,7 +25,6 @@ interface MessageInputProps {
   isLoading: boolean;
   isTemporaryMessagesEnabled: boolean;
 }
-
 const MessageInput: React.FC<MessageInputProps> = ({
   onSubmit,
   isVoiceEnabled,
@@ -51,8 +48,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [isTemporary, setIsTemporary] = useState(false);
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -76,45 +74,39 @@ const MessageInput: React.FC<MessageInputProps> = ({
       });
       return;
     }
-
     setSelectedFile(file);
     const preview = URL.createObjectURL(file);
     setFilePreview(preview);
   };
-
   const handleSubmit = () => {
     if (!message.trim() && !selectedFile) return;
-    
     if (activeFeature === 'deep-think') {
       onDeepThink(message);
       toast({
         title: "Deep Think activated",
-        description: "Processing your query with enhanced reasoning...",
+        description: "Processing your query with enhanced reasoning..."
       });
     } else if (activeFeature === 'deep-search') {
       onDeepSearch(message);
       toast({
         title: "Deep Search activated",
-        description: "Searching the web for relevant information...",
+        description: "Searching the web for relevant information..."
       });
     } else {
       onSubmit(message, selectedFile, isTemporaryMessagesEnabled && isTemporary);
     }
-    
     setMessage('');
     setSelectedFile(null);
     setFilePreview(null);
     setIsTemporary(false);
     setActiveFeature(null);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
-
   const clearImage = () => {
     setSelectedFile(null);
     setFilePreview(null);
@@ -122,7 +114,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
       fileInputRef.current.value = '';
     }
   };
-
   const handleDeepThinkClick = () => {
     setActiveFeature(activeFeature === 'deep-think' ? null : 'deep-think');
     if (activeFeature !== 'deep-think') {
@@ -137,7 +128,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
       });
     }
   };
-
   const handleDeepSearchClick = () => {
     setActiveFeature(activeFeature === 'deep-search' ? null : 'deep-search');
     if (activeFeature !== 'deep-search') {
@@ -152,130 +142,59 @@ const MessageInput: React.FC<MessageInputProps> = ({
       });
     }
   };
-  
   const handleScreenShareClick = () => {
     onToggleScreenShare();
     setActiveFeature(activeFeature === 'screen-share' ? null : 'screen-share');
   };
-  
   const handleVoiceChatClick = () => {
     onToggleVoiceChat();
     setActiveFeature(activeFeature === 'voice-chat' ? null : 'voice-chat');
   };
-  
   const handleNoteTakingClick = () => {
     onNoteTaking();
     setActiveFeature(activeFeature === 'note-taking' ? null : 'note-taking');
   };
-  
   const handleToolIntegrationClick = () => {
     onToolIntegration();
     setActiveFeature(activeFeature === 'tool-integration' ? null : 'tool-integration');
   };
-
-  return (
-    <div className="p-4 border-t border-border/40 bg-background">
-      {filePreview && (
-        <div className="mb-3 relative">
+  return <div className="p-4 border-t border-border/40 bg-background">
+      {filePreview && <div className="mb-3 relative">
           <img src={filePreview} alt="Preview" className="h-20 rounded-md object-contain" />
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            className="absolute top-0 right-0 h-6 w-6 p-0" 
-            onClick={clearImage}
-          >
+          <Button variant="destructive" size="sm" className="absolute top-0 right-0 h-6 w-6 p-0" onClick={clearImage}>
             ✕
           </Button>
-        </div>
-      )}
+        </div>}
       
       <div className="flex flex-col gap-3">
-        <FeatureMenu
-          onVoiceChatClick={handleVoiceChatClick}
-          onScreenShareClick={handleScreenShareClick}
-          onDeepThinkClick={handleDeepThinkClick}
-          onDeepSearchClick={handleDeepSearchClick}
-          onNoteTakingClick={handleNoteTakingClick}
-          onToolIntegrationClick={handleToolIntegrationClick}
-          onGenerateImageClick={() => onGenerateContent('image')}
-          onGenerateVideoClick={() => onGenerateContent('video')}
-          onGeneratePDFClick={() => onGenerateContent('pdf')}
-          activeFeature={activeFeature}
-        />
+        <FeatureMenu onVoiceChatClick={handleVoiceChatClick} onScreenShareClick={handleScreenShareClick} onDeepThinkClick={handleDeepThinkClick} onDeepSearchClick={handleDeepSearchClick} onNoteTakingClick={handleNoteTakingClick} onToolIntegrationClick={handleToolIntegrationClick} onGenerateImageClick={() => onGenerateContent('image')} onGenerateVideoClick={() => onGenerateContent('video')} onGeneratePDFClick={() => onGenerateContent('pdf')} activeFeature={activeFeature} />
         
-        <div className="flex items-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground"
-          >
+        <div className="flex items-end gap-2 rounded-full">
+          <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} className="bg-muted/50 border-border/30 text-muted-foreground hover:text-foreground">
             <Image className="h-5 w-5" />
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
           </Button>
 
           <div className="relative flex-1">
-            <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={activeFeature === 'deep-think' 
-                ? "Ask a question that needs deep reasoning..." 
-                : activeFeature === 'deep-search' 
-                  ? "Search for information on the web..." 
-                  : activeFeature === 'tool-integration'
-                    ? "Send a command to the connected tool..."
-                    : "Send a message..."}
-              className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30"
-              disabled={isLoading}
-            />
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} onKeyDown={handleKeyDown} placeholder={activeFeature === 'deep-think' ? "Ask a question that needs deep reasoning..." : activeFeature === 'deep-search' ? "Search for information on the web..." : activeFeature === 'tool-integration' ? "Send a command to the connected tool..." : "Send a message..."} className="min-h-[50px] max-h-[200px] pr-24 resize-none bg-muted/50 border-border/30" disabled={isLoading} />
             
-            {isTemporaryMessagesEnabled && (
-              <div className="absolute top-2 right-24 flex items-center gap-2">
+            {isTemporaryMessagesEnabled && <div className="absolute top-2 right-24 flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <Switch 
-                  checked={isTemporary}
-                  onCheckedChange={setIsTemporary}
-                />
-              </div>
-            )}
+                <Switch checked={isTemporary} onCheckedChange={setIsTemporary} />
+              </div>}
             
             <div className="absolute bottom-2 right-2 flex gap-1">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className={cn(
-                  "h-8 w-8 bg-muted/70 border border-border/30",
-                  isListening && "animate-pulse bg-secondary/30 border-secondary/40"
-                )}
-                onClick={onToggleVoice}
-                disabled={!isVoiceEnabled}
-              >
+              <Button type="button" size="icon" variant="ghost" className={cn("h-8 w-8 bg-muted/70 border border-border/30", isListening && "animate-pulse bg-secondary/30 border-secondary/40")} onClick={onToggleVoice} disabled={!isVoiceEnabled}>
                 {isListening ? <Mic className="h-4 w-4 text-secondary" /> : <MicOff className="h-4 w-4" />}
               </Button>
               
-              <Button
-                size="icon"
-                className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/80"
-                onClick={handleSubmit}
-                disabled={isLoading || (!message.trim() && !selectedFile)}
-              >
+              <Button size="icon" className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/80" onClick={handleSubmit} disabled={isLoading || !message.trim() && !selectedFile}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MessageInput;
